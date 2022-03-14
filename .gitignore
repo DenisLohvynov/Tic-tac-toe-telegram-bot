@@ -2,3 +2,4 @@ TelegramImages
 .env
 *.pyc
 .vscode
+TelegramBot
