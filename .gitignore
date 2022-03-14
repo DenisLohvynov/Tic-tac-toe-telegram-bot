@@ -1,4 +1,4 @@
-TelegramImages
+*.jpg
 .env
 *.pyc
 .vscode
