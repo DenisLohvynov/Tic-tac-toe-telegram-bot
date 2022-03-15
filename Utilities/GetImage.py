@@ -62,7 +62,7 @@ def __draw_O(context: cairo.Context, x: int, y: int, size: int, r: float, O_colo
 def Generate(
         name: str,
         size: int = 800,
-        path: str = "TelegramImages",
+        path: str = r'TelegramImages/',
         buf: float = 0.05,
         back_color: tuple = (0, 0, 0),
         grid_color: tuple = (255, 255, 255),
@@ -72,7 +72,7 @@ def Generate(
         ):
     """
     buf - отступ от края в процентах,
-    path - без последнего /
+    path - with /
     color - RGB,
     number_color_opacity - RGB + opacity in %
     """
@@ -106,6 +106,6 @@ def Generate(
         elif name[i-1]=='O':
             __draw_O(context, l[i-1][0], l[i-1][1], size, x*size/3, O_color)
 
-    surface.write_to_png(path + '/' + name + ".jpg")
+    surface.write_to_png(path + name + ".jpg")
 
-    return path + '/' + name + ".jpg"
+    return path + name + ".jpg"
