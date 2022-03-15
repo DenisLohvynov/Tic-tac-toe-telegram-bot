@@ -59,7 +59,7 @@ def __draw_O(context: cairo.Context, x: int, y: int, size: int, r: float, O_colo
     context.stroke()
 
 
-    def Generate(
+def Generate(
         name: str,
         size: int = 800,
         path: str = "TelegramImages",
