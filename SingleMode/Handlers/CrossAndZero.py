@@ -1,4 +1,4 @@
-from aiogram import types, Dispatcher
+from aiogram import types, Dispatcher, Bot
 from aiogram.types.input_media import InputMediaPhoto
 import asyncio
 from CreateBot import bot, dp
@@ -25,6 +25,21 @@ async def process_callback_X_O(callback_query: types.CallbackQuery):
 
 @dp.callback_query_handler(lambda callback_query: (callback_query.data[0] in [str(i) for i in range(1, 10)]) and callback_query.message.chat.type=='private')
 async def process_callback_i(callback_query: types.CallbackQuery):
+    
+    async def answer(bot: Bot,  callback_query: types.CallbackQuery, name: str, answer: str, caption: str, show_alert: bool = True, markup: types.InlineKeyboardMarkup = None):
+        await callback_query.answer(answer, show_alert=show_alert)
+        await bot.answer_callback_query(callback_query.id)
+        
+        with open(GetImage.Generate(name), 'rb') as photo:
+            await bot.edit_message_media(
+                    media=InputMediaPhoto(
+                        media=photo,
+                        caption=caption),
+                    chat_id=callback_query.message.chat.id, 
+                    message_id=callback_query.message.message_id, 
+                    reply_markup=markup
+                )
+    
     t = int(callback_query.data[0])-1 # index
     name_old = CodeForCallbackMove.decode(callback_query.data[1:])
     if name_old[t]!='N':
@@ -34,71 +49,18 @@ async def process_callback_i(callback_query: types.CallbackQuery):
         name = FunctionsForTicTacToe.get_new_name(name_old, t)
         temp = FunctionsForTicTacToe.if_end(name)
         if temp==1:
-            await callback_query.answer("Победа!", show_alert=True)
-            await bot.answer_callback_query(callback_query.id)
-            with open(GetImage.Generate(name), 'rb') as photo:
-                await bot.edit_message_media(
-                        media=InputMediaPhoto(
-                            media=photo,
-                            caption="Победа\!"),
-                        chat_id=callback_query.message.chat.id, 
-                        message_id=callback_query.message.message_id
-                    )
+            await answer(bot, callback_query, name, "Победа!", "Победа\!")
         elif temp==2:
-            # await callback_query.answer("Ничья", show_alert=True)
-            await bot.answer_callback_query(callback_query.id)
-            with open(GetImage.Generate(name), 'rb') as photo:
-                await bot.edit_message_media(
-                        media=InputMediaPhoto(
-                            media=photo,
-                            caption="Ничья\."),
-                        chat_id=callback_query.message.chat.id, 
-                        message_id=callback_query.message.message_id
-                    )
+            await answer(bot, callback_query, name, "Ничья.", "Ничья\.")
         else:
-            await callback_query.answer("Ход совершен.", show_alert=False)
-            await bot.answer_callback_query(callback_query.id)
-            with open(GetImage.Generate(name), 'rb') as photo:
-                await bot.edit_message_media(
-                        media=InputMediaPhoto(
-                            media=photo,
-                            caption="Ход противника\."),
-                        chat_id=callback_query.message.chat.id, 
-                        message_id=callback_query.message.message_id,
-                        reply_markup=ClientMarkup.not_your_turn()
-                    )
-            await asyncio.sleep(2)
-            name1 = FunctionsForTicTacToe.get_random(name)
-            temp = FunctionsForTicTacToe.if_end(name1)
+            name = FunctionsForTicTacToe.get_random(name)
+            temp = FunctionsForTicTacToe.if_end(name)
             if temp==1:
-                with open(GetImage.Generate(name1), 'rb') as photo:
-                    await bot.edit_message_media(
-                            media=InputMediaPhoto(
-                                media=photo,
-                                caption="Вы проиграли\!"),
-                            chat_id=callback_query.message.chat.id, 
-                            message_id=callback_query.message.message_id
-                        )
+                await answer(bot, callback_query, name, "Поражение.", "Вы проиграли\!")
             elif temp==2:
-                await bot.answer_callback_query(callback_query.id)
-                with open(GetImage.Generate(name1), 'rb') as photo:
-                    await bot.edit_message_media(
-                            media=InputMediaPhoto(
-                                media=photo,
-                                caption="Ничья\."),
-                            chat_id=callback_query.message.chat.id, 
-                            message_id=callback_query.message.message_id
-                        )
+                await answer(bot, callback_query, name, "Ничья.", "Ничья\.")
             else:
-                with open(GetImage.Generate(name1), 'rb') as photo:
-                    await bot.edit_message_media(
-                            media=InputMediaPhoto(
-                                media=photo,
-                                caption="Выберите Ваш ход из предложенных ниже:"),
-                            chat_id=callback_query.message.chat.id, 
-                            message_id=callback_query.message.message_id,
-                            reply_markup=ClientMarkup.choose_move(name1)
-                        )
+                await answer(bot, callback_query, name, "Ход совершен.", "Выберите Ваш ход из предложенных ниже:", show_alert=False, markup=ClientMarkup.choose_move(name))
 
 
 def register_handlers_CrossAndZero(dp: Dispatcher):

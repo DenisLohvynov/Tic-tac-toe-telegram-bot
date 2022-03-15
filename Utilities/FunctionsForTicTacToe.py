@@ -40,13 +40,13 @@ def if_end(name: str) -> int:
 
     2 - ничья 
     """
+    
+    if (name[0]==name[1]==name[2] and name[0]!='N') or (name[3]==name[4]==name[5] and name[3]!='N') or (name[6]==name[7]==name[8] and name[6]!='N') or (name[0]==name[3]==name[6] and name[3]!='N') or (name[1]==name[4]==name[7] and name[4]!='N') or (name[2]==name[5]==name[8] and name[2]!='N') or (name[0]==name[4]==name[8] and name[0]!='N') or (name[2]==name[4]==name[6] and name[4]!='N'):
+        return 1
     E = 0
     for i in name:
         if i in ('X', 'O'):
             E+=1
     if E == 9:
         return 2
-    
-    if (name[0]==name[1]==name[2] and name[0]!='N') or (name[3]==name[4]==name[5] and name[3]!='N') or (name[6]==name[7]==name[8] and name[6]!='N') or (name[0]==name[3]==name[6] and name[3]!='N') or (name[1]==name[4]==name[7] and name[4]!='N') or (name[2]==name[5]==name[8] and name[2]!='N') or (name[0]==name[4]==name[8] and name[0]!='N') or (name[2]==name[4]==name[6] and name[4]!='N'):
-        return 1
     return 0
