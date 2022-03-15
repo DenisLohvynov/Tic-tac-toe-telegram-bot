@@ -18,7 +18,7 @@ def choose_move(name: str) -> InlineKeyboardMarkup:
         markup.add(next(l), next(l), next(l))
     return markup
 
-
+# уже нет!??? А может и да, но не тут
 def not_your_turn() -> InlineKeyboardMarkup:
     markup = InlineKeyboardMarkup()
     l = (InlineKeyboardButton(str(i), callback_data="OpponentTurn") for i in range(1, 10))
