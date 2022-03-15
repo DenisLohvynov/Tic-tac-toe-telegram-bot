@@ -30,12 +30,12 @@ def __draw_grid(context: cairo.Context, buf: float, size: int):
     context.stroke()
 
 
-def __draw_number(context: cairo.Context, x: int, y: int, size: int, i: int):
+def __draw_number(context: cairo.Context, x: int, y: int, size: int, i: int, number_color_opacity: tuple):
     context.set_font_size(65*size/800)
     context.select_font_face("Arial",
                     cairo.FONT_SLANT_NORMAL,
                     cairo.FONT_WEIGHT_NORMAL)
-    context.set_source_rgba(1, 1 , 1, 0.5)
+    context.set_source_rgba(number_color_opacity[0]/255, number_color_opacity[1]/255 , number_color_opacity[2]/255, number_color_opacity[3]/100)
     context.move_to(x, y)
     context.show_text(str(i))
 
@@ -59,17 +59,22 @@ def __draw_O(context: cairo.Context, x: int, y: int, size: int, r: float, O_colo
     context.stroke()
 
 
-def Generate(
+    def Generate(
         name: str,
         size: int = 800,
+        path: str = "TelegramImages",
         buf: float = 0.05,
         back_color: tuple = (0, 0, 0),
         grid_color: tuple = (255, 255, 255),
         X_color: tuple = (116, 230, 137),
-        O_color: tuple = (108, 117, 239)
+        O_color: tuple = (108, 117, 239),
+        number_color_opacity: tuple = (255, 255, 255, 50)
         ):
     """
-    buf - отступ от края в процентах, color - RGB
+    buf - отступ от края в процентах,
+    path - без последнего /
+    color - RGB,
+    number_color_opacity - RGB + opacity in %
     """
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
     context = cairo.Context(surface)
@@ -94,13 +99,13 @@ def Generate(
 
     for i in range(1, 10):
         if name[i-1]=='N':
-            __draw_number(context, l[i-1][0]-0.02*size, l[i-1][1]+0.02*size, size, i)
+            __draw_number(context, l[i-1][0]-0.02*size, l[i-1][1]+0.02*size, size, i, number_color_opacity)
         elif name[i-1]=='X':
             b = 0.6*0.5
             __draw_X(context, l[i-1][0], l[i-1][1], size, b*x*size, X_color)
         elif name[i-1]=='O':
             __draw_O(context, l[i-1][0], l[i-1][1], size, x*size/3, O_color)
 
-    surface.write_to_png(r"TelegramImages/" + name + ".jpg")
+    surface.write_to_png(path + '/' + name + ".jpg")
 
-    return r"TelegramImages/" + name + ".jpg"
+    return path + '/' + name + ".jpg"
