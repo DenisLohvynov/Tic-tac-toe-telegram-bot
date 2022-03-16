@@ -39,7 +39,7 @@ async def process_callback_i(callback_query: types.CallbackQuery):
                     message_id=callback_query.message.message_id, 
                     reply_markup=markup
                 )
-    
+
     t = int(callback_query.data[0])-1 # index
     name_old = CodeForCallbackMove.decode(callback_query.data[1:])
     if name_old[t]!='N':
