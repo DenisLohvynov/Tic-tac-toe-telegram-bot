@@ -1,30 +1,19 @@
 from aiogram import types, Dispatcher
 from CreateBot import bot
 from ..Markup import ClientMarkup
-from aiogram.utils.deep_linking import decode_payload
+import data_base.data_base as data_base
 
 
 # Может переместить часть с аргументами в другой файл?
 async def Greetings(message: types.Message):
-    args = message.get_args()
-    if args=="":
-        await bot.send_message(message.chat.id, r"""
-            Добро пожаловать\! Это бот для игры в крестики нолики\. Вы можете выбрать несколько режимов игры\.
-            • Со мной \(ботом\) \- \/single\_mode
-            • С выбранным другом
-            • Со случайным игроком
-            """
-        )
-    else:    
-        payload = decode_payload(args)
-        print(payload)
-        if message.from_user.id==int(payload[1:]):
-            await bot.send_message(message.chat.id, r"""
-                Если Вы хотите сыграть с собой, есть способ по проще :\-\)\.
-                """
-            )
-        else:
-            pass
+    data_base.sign_in(message.from_user.id, message.from_user.first_name)
+    await bot.send_message(message.chat.id, r"""
+        Добро пожаловать\! Это бот для игры в крестики нолики\. Вы можете выбрать несколько режимов игры\.
+        • Со мной \(ботом\) \- \/single\_mode
+        • С выбранным другом
+        • Со случайным игроком
+        """
+    )
 
 
 
@@ -35,5 +24,5 @@ async def Single_Mode_Settings(message: types.Message):
 
 def register_handlers_client(dp: Dispatcher):
     # Тут message.text=="/start" возможно лишнее!
-    dp.register_message_handler(Greetings, lambda message: message.chat.type=='private', commands=['start'])
+    dp.register_message_handler(Greetings, lambda message: message.chat.type=='private' and message.get_args()=="", commands=['start'])
     dp.register_message_handler(Single_Mode_Settings, lambda message: message.chat.type=='private', commands=['single_mode'])
