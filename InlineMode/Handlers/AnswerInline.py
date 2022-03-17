@@ -1,13 +1,9 @@
 from CreateBot import dp, bot, photo_id_inline
-from aiogram.utils.deep_linking import decode_payload
-from aiogram.types import InlineQuery, InlineQueryResultCachedPhoto, CallbackQuery, Message
+from aiogram.types import InlineQuery, InlineQueryResultCachedPhoto, CallbackQuery
 from aiogram import Dispatcher
 from InlineMode.Markup import markup
 from aiogram.types.chosen_inline_result import ChosenInlineResult
-from random import choice
-import data_base.data_base as data_base
-from Utilities import GetImage
-# from aiogram.types.input_media import InputMediaPhoto
+
 
 @dp.inline_handler()
 async def inline_hander(query: InlineQuery):
@@ -37,52 +33,19 @@ async def chosen_handler(chosen_result: ChosenInlineResult):
         )
 
 
-# тут обращения в БД за именами
-async def Greetings(message: Message):
-    data_base.sign_in(message.from_user.id, message.from_user.first_name)
-    args = message.get_args()
-    payload = decode_payload(args)
-    if message.from_user.id==int(payload[1:].split(' ')[0]):
-        await bot.send_message(message.chat.id, r"""
-            Если Вы хотите сыграть с собой, есть способ по проще :\-\)\.
-            """
-        )
-    else:
-        X_O = payload[0] if payload[0]!='?' else choice(('X', 'O'))
-        id_X_O, inline_id = payload[1:].split(' ') # id first, plays X_O
-        id_O_X = str(message.from_user.id) # id second
-        try:
-            await bot.edit_message_caption(
-                inline_message_id=inline_id,
-                caption=data_base.get_name(int(id_X_O)) + " и " + message.from_user.first_name + " сейчас играют\."
-            )
-            with open(GetImage.Generate("NNNNNNNNN"), 'rb') as photo:
-                file_id = (await bot.send_photo(
-                    id_X_O,
-                    photo,
-                    caption='Выберите Ваш ход из предложенных ниже:',
-                    reply_markup=None
-                ))["photo"][2]["file_id"]
-                await bot.send_photo(
-                    id_O_X,
-                    file_id,
-                    caption='Выберите Ваш ход из предложенных ниже:',
-                    reply_markup=None
-                )
-
-        except NameError:
-            await bot.edit_message_caption(
-                inline_message_id=inline_id,
-                caption="Кто\-то не нажал [старт]("+r"https://t.me/" + (await bot.get_me()).username + "?start" + ")\. *Нажмите* и затем бросьте еще одно предложения об игре\."
-            )
 
 async def wait(callback_query: CallbackQuery):
     await callback_query.answer("Подождите бот генерирует кнопку.", show_alert=False)
     await bot.answer_callback_query(callback_query.id)
 
 
+async def expect(callback_query: CallbackQuery):
+    await callback_query.answer("Ход соперника.", show_alert=False)
+    await bot.answer_callback_query(callback_query.id)
+
+
 def register_handlers_AnswerInline(dp: Dispatcher):
     dp.register_inline_handler(inline_hander)
-    dp.register_message_handler(Greetings, lambda message: message.get_args()!='', commands=['start'])
     dp.register_chosen_inline_handler(chosen_handler)
-    dp.register_callback_query_handler(wait, lambda callback_query: callback_query.data=="wait")
+    dp.register_callback_query_handler(wait, lambda callback_query: callback_query.data[:4]=="wait")
+    dp.register_callback_query_handler(expect, lambda callback_query: callback_query.data[:6]=="expect")

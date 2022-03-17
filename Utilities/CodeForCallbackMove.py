@@ -1,3 +1,7 @@
+from secrets import choice
+from aiogram.utils.deep_linking import decode_payload
+from random import choice
+
 def code(name: str) -> str:
     """
     Кодирует имя перед записью в кнопку
@@ -127,3 +131,12 @@ def decode(code: str) -> str:
         elif i=="l":
             name+="XXX"
     return name
+
+
+def decode_greetings_2_0(args: str, id_O_X: str) -> tuple:
+    payload = decode_payload(args)
+    X_O = payload[0] if payload[0]!='?' else choice(('X', 'O'))
+    id_X_O, inline_id = payload[1:].split(' ') # id first, plays X_O
+    id_X = id_X_O if X_O=='X' else id_O_X
+    id_O = id_X_O if X_O=='O' else id_O_X
+    return id_X, id_O, inline_id
