@@ -36,16 +36,16 @@ def your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id_O: 
         InlineKeyboardButton(6, callback_data=alfabet[6])
     )
     markup.add(
-        InlineKeyboardButton(7, callback_data=alfabet[9]+message_id_X),
-        InlineKeyboardButton(8, callback_data=alfabet[8]+message_id_O),
-        InlineKeyboardButton(9, callback_data=alfabet[7])
+        InlineKeyboardButton(7, callback_data=alfabet[7]),
+        InlineKeyboardButton(8, callback_data=alfabet[8]),
+        InlineKeyboardButton(9, callback_data=alfabet[9])
     )
     return markup.add(InlineKeyboardButton('Ходи', callback_data="wait"), InlineKeyboardButton('Сдаться', callback_data="wait"))
 
 
 def not_your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id_O: str) -> InlineKeyboardMarkup:
     # id - 1, id - 2, message_id-1, message_id-2, name, time?
-    alfabet = {1: 'q', 2: 'w', 3: 'e', 4: 'r', 5: 't', 6: 'y', 7: 'u', 8: 'i', 9: 'O'}
+    # alfabet = {1: 'q', 2: 'w', 3: 'e', 4: 'r', 5: 't', 6: 'y', 7: 'u', 8: 'i', 9: 'O'}
     markup = InlineKeyboardMarkup()
     markup.add(
         InlineKeyboardButton(1, callback_data="expect"+name),
@@ -64,3 +64,6 @@ def not_your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id
     )
     return markup.add(InlineKeyboardButton('Ходи', callback_data="wait"), InlineKeyboardButton('Сдаться', callback_data="wait"))
 
+
+async def to_bot():
+    return InlineKeyboardMarkup().add(InlineKeyboardButton("Перейти к боту", url= (await get_start_link(""))[:-7]))

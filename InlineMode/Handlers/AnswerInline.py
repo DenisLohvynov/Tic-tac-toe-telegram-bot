@@ -5,7 +5,6 @@ from InlineMode.Markup import markup
 from aiogram.types.chosen_inline_result import ChosenInlineResult
 
 
-@dp.inline_handler()
 async def inline_hander(query: InlineQuery):
     if query.chat_type=='private':
         results = []
@@ -23,7 +22,6 @@ async def inline_hander(query: InlineQuery):
         await bot.answer_inline_query(query.id, results=results, cache_time=1)
 
 
-@dp.chosen_inline_handler()
 async def chosen_handler(chosen_result: ChosenInlineResult):
     what = "чем\-то" if chosen_result.result_id=="?" else chosen_result.result_id
     await bot.edit_message_caption(
@@ -39,13 +37,7 @@ async def wait(callback_query: CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
 
 
-async def expect(callback_query: CallbackQuery):
-    await callback_query.answer("Ход соперника.", show_alert=False)
-    await bot.answer_callback_query(callback_query.id)
-
-
 def register_handlers_AnswerInline(dp: Dispatcher):
     dp.register_inline_handler(inline_hander)
     dp.register_chosen_inline_handler(chosen_handler)
     dp.register_callback_query_handler(wait, lambda callback_query: callback_query.data[:4]=="wait")
-    dp.register_callback_query_handler(expect, lambda callback_query: callback_query.data[:6]=="expect")

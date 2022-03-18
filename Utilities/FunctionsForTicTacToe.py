@@ -16,9 +16,10 @@ def __determine_X_or_O(name: str):
         return "X"
     return "O"
 
-def get_new_name(name: str, t: int) -> str:
-    return name[:t] + __determine_X_or_O(name) + name[t+1:]
-
+def get_new_name(name: str, t: int, X: str|None = None) -> str:
+    if X==None:
+        return name[:t] + __determine_X_or_O(name) + name[t+1:]
+    return name[:t] + X + name[t+1:]
 
 def get_random(name: str, what: str = 'N') -> int:
     """
