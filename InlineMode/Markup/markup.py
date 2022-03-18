@@ -21,7 +21,7 @@ def temp_wait() -> InlineKeyboardMarkup:
     return markup.add(InlineKeyboardButton('Ходи', callback_data="wait"), InlineKeyboardButton('Сдаться', callback_data="wait"))
 
 
-def your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id_O: str) -> InlineKeyboardMarkup:
+def your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id_O: str, inline_id: str) -> InlineKeyboardMarkup:
     # id - 1, id - 2, message_id-1, message_id-2, name, time?
     alfabet = {1: 'q', 2: 'w', 3: 'e', 4: 'r', 5: 't', 6: 'y', 7: 'u', 8: 'i', 9: 'O'}
     markup = InlineKeyboardMarkup()
@@ -33,7 +33,7 @@ def your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id_O: 
     markup.add(
         InlineKeyboardButton(4, callback_data=alfabet[4]+message_id_X),
         InlineKeyboardButton(5, callback_data=alfabet[5]+message_id_O),
-        InlineKeyboardButton(6, callback_data=alfabet[6])
+        InlineKeyboardButton(6, callback_data=alfabet[6]+inline_id)
     )
     markup.add(
         InlineKeyboardButton(7, callback_data=alfabet[7]),
@@ -43,7 +43,7 @@ def your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id_O: 
     return markup.add(InlineKeyboardButton('Ходи', callback_data="wait"), InlineKeyboardButton('Сдаться', callback_data="wait"))
 
 
-def not_your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id_O: str) -> InlineKeyboardMarkup:
+def not_your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id_O: str, inline_id: str) -> InlineKeyboardMarkup:
     # id - 1, id - 2, message_id-1, message_id-2, name, time?
     # alfabet = {1: 'q', 2: 'w', 3: 'e', 4: 'r', 5: 't', 6: 'y', 7: 'u', 8: 'i', 9: 'O'}
     markup = InlineKeyboardMarkup()
@@ -55,7 +55,7 @@ def not_your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id
     markup.add(
         InlineKeyboardButton(4, callback_data="expect"+message_id_X),
         InlineKeyboardButton(5, callback_data="expect"+message_id_O),
-        InlineKeyboardButton(6, callback_data="expect")
+        InlineKeyboardButton(6, callback_data="expect"+inline_id)
     )
     markup.add(
         InlineKeyboardButton(7, callback_data="expect"),

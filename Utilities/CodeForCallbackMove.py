@@ -145,24 +145,39 @@ def decode_greetings_2_0(args: str, id_O_X: str) -> tuple:
 
 def decode_data_from_markup_your_turn(keyboards: list) -> dict:
     """
-    returns dictionary with such keys (name, id_X, id_O, message_id_X, message_id_O)
+    returns dictionary with such keys (name, id_X, id_O, message_id_X, message_id_O, inline_id)
     """
     name = keyboards[0][0]["callback_data"][1:]
     id_X = keyboards[0][1]["callback_data"][1:]
     id_O = keyboards[0][2]["callback_data"][1:]
     message_id_X = keyboards[1][0]["callback_data"][1:]
     message_id_O = keyboards[1][1]["callback_data"][1:]
-    return {'name': name, 'id_X': id_X, 'message_id_X': message_id_X, 'id_O': id_O, 'message_id_O': message_id_O}
+    inline_id = keyboards[1][2]["callback_data"][1:]
+    return {
+        'name': name,
+        'id_X': id_X,
+        'message_id_X': message_id_X,
+        'id_O': id_O,
+        'message_id_O': message_id_O,
+        'inline_id': inline_id
+        }
 
 
 def decode_data_from_markup_not_your_turn(keyboards: list) -> dict:
     """
-    returns dictionary with such keys (name, id_X, id_O, message_id_X, message_id_O)
+    returns dictionary with such keys (name, id_X, id_O, message_id_X, message_id_O, inline_id)
     """
     name = keyboards[0][0]["callback_data"][6:]
     id_X = keyboards[0][1]["callback_data"][6:]
     id_O = keyboards[0][2]["callback_data"][6:]
     message_id_X = keyboards[1][0]["callback_data"][6:]
     message_id_O = keyboards[1][1]["callback_data"][6:]
-    return {'name': name, 'id_X': id_X, 'message_id_X': message_id_X, 'id_O': id_O, 'message_id_O': message_id_O}
-
+    inline_id = keyboards[1][2]["callback_data"][6:]
+    return {
+        'name': name,
+        'id_X': id_X,
+        'message_id_X': message_id_X,
+        'id_O': id_O,
+        'message_id_O': message_id_O,
+        'inline_id': inline_id
+        }
