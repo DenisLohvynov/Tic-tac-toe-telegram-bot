@@ -31,7 +31,6 @@ async def chosen_handler(chosen_result: ChosenInlineResult):
         )
 
 
-
 async def wait(callback_query: CallbackQuery):
     await callback_query.answer("Подождите бот генерирует кнопку.", show_alert=False)
     await bot.answer_callback_query(callback_query.id)

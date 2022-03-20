@@ -1,4 +1,3 @@
-from http.client import CONTINUE
 from InlineMode.Markup import markup
 from data_base import data_base
 from aiogram.types import Message, CallbackQuery
@@ -7,6 +6,8 @@ from Utilities import CodeForCallbackMove as code, GetImage, FunctionsForTicTacT
 from aiogram import Dispatcher
 from aiogram.types.input_media import InputMediaPhoto
 from Utilities.types_X_O import ResultOfGame
+import time
+from functools import partial
 
 
 async def deep_link(message: Message):
@@ -60,6 +61,36 @@ async def expect(callback_query: CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
 
 
+async def your_turn(callback_query: CallbackQuery):
+    await callback_query.answer("Ваш ход!", show_alert=True)
+    await bot.answer_callback_query(callback_query.id)
+
+
+async def hurry_up(callback_query: CallbackQuery, timeout: int):
+    cur = int(time.time())
+    if callback_query.data[8:]=="" or cur-int(callback_query.data[8:]) > timeout:
+        D = code.decode_data_from_markup(callback_query["message"]["reply_markup"]["inline_keyboard"], 6)
+        await bot.edit_message_caption(
+            chat_id=callback_query.message.chat.id,
+            message_id=callback_query.message.message_id,
+            caption="Подождите соперник ходит\.",
+            reply_markup=markup.not_your_turn(
+                D["name"], D["id_X"], D["message_id_X"], D["id_O"], 
+                D["message_id_O"], D["inline_id"], cur
+                )
+            )
+        await callback_query.answer("Сопернику сообщили.", show_alert=False)
+        await bot.answer_callback_query(callback_query.id)
+        id, message_id = (D["id_X"], D["message_id_X"]) if D["id_O"]==str(callback_query.message.chat.id) else (D["id_O"], D["message_id_O"])
+        await bot.send_message(
+            id, "Ваш ход\!",
+            reply_to_message_id=message_id
+            )
+    else:
+        await callback_query.answer("Повторите через "+str(timeout - (cur-int(callback_query.data[8:]))) + "с", show_alert=False)
+        await bot.answer_callback_query(callback_query.id)
+
+
 async def move(callback_query: CallbackQuery):
     alfabet = {'q': 1, 'w': 2, 'e': 3, 'r': 4, 't': 5, 'y': 6,'u': 7,'i': 8, 'O': 9}
     D = code.decode_data_from_markup(callback_query["message"]["reply_markup"]["inline_keyboard"])
@@ -95,7 +126,7 @@ async def move(callback_query: CallbackQuery):
                     media=InputMediaPhoto(
                         media=file_id,
                         caption='Выберите Ваш ход из предложенных ниже:'),
-                    chat_id=chat_id1, 
+                    chat_id=chat_id1,
                     message_id=message_id1,
                     reply_markup=markup.your_turn(name, D["id_X"], D["message_id_X"], D["id_O"], D["message_id_O"], D["inline_id"])
                     )
@@ -144,15 +175,15 @@ async def surrender(callback_query: CallbackQuery):
         D = code.decode_data_from_markup(callback_query["message"]["reply_markup"]["inline_keyboard"])
     losser_id, losser_message_id = (D["id_X"], D["message_id_X"]) if D["id_X"]==callback_query.message.from_user.id else (D["id_O"], D["message_id_O"])
     winner_id, winner_message_id = (D["id_O"], D["message_id_O"]) if D["id_X"]==callback_query.message.from_user.id else (D["id_X"], D["message_id_X"]) 
-    await end_of_the_game_invitation(int(winner_id), int(losser_id), D["inline_id"])
-    await bot.edit_message_caption(
-        losser_id, losser_message_id,
-        caption="Поражение\."
-    )
     await bot.edit_message_caption(
         winner_id, winner_message_id,
         caption="Подбеда\!"
     )
+    await bot.edit_message_caption(
+        losser_id, losser_message_id,
+        caption="Поражение\."
+    )
+    await end_of_the_game_invitation(int(winner_id), int(losser_id), D["inline_id"])
 
 
 async def end_of_the_game_invitation(winner_id: int, losser_id: int, inline_message_id: str|int, what: ResultOfGame = ResultOfGame.WIN):
@@ -172,4 +203,7 @@ def register_handlers_CrossAndZero(dp: Dispatcher):
     dp.register_message_handler(deep_link, lambda message: message.get_args()!='', commands=['start'])
     dp.register_callback_query_handler(expect, lambda callback_query: callback_query.data[:6]=="expect")
     dp.register_callback_query_handler(surrender, lambda callback_query: callback_query.data=="surrender")
+    dp.register_callback_query_handler(your_turn, lambda callback_query: callback_query.data=="your_turn")
+    dp.register_callback_query_handler(partial(hurry_up, timeout=20), lambda callback_query: callback_query.data[:8]=="hurry_up")
+    # Always last!
     dp.register_callback_query_handler(move, lambda callback_query: callback_query.data[0] in ('q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'O'))
