@@ -5,6 +5,7 @@ from CreateBot import bot, dp
 from Utilities import FunctionsForTicTacToe, GetImage
 from ..Markup import ClientMarkup
 from Utilities import CodeForCallbackMove
+from Utilities.types_X_O import ResultOfGame
 
 async def Opponent_Turn(callback_query: types.CallbackQuery):
     await callback_query.answer("Ход оппонента", show_alert=True)
@@ -47,17 +48,17 @@ async def process_callback_i(callback_query: types.CallbackQuery):
         await bot.answer_callback_query(callback_query.id)
     else:
         name = FunctionsForTicTacToe.get_new_name(name_old, t)
-        temp = FunctionsForTicTacToe.if_end(name)
-        if temp==1:
+        result = FunctionsForTicTacToe.if_end(name)
+        if result==ResultOfGame.WIN:
             await answer(bot, callback_query, name, "Победа!", "Победа\!")
-        elif temp==2:
+        elif result==ResultOfGame.DRAW:
             await answer(bot, callback_query, name, "Ничья.", "Ничья\.")
         else:
             name = FunctionsForTicTacToe.get_random(name)
-            temp = FunctionsForTicTacToe.if_end(name)
-            if temp==1:
+            result = FunctionsForTicTacToe.if_end(name)
+            if result==ResultOfGame.WIN:
                 await answer(bot, callback_query, name, "Поражение.", "Вы проиграли\!")
-            elif temp==2:
+            elif result==ResultOfGame.DRAW:
                 await answer(bot, callback_query, name, "Ничья.", "Ничья\.")
             else:
                 await answer(bot, callback_query, name, "Ход совершен.", "Выберите Ваш ход из предложенных ниже:", show_alert=False, markup=ClientMarkup.choose_move(name))

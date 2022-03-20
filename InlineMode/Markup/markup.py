@@ -40,7 +40,7 @@ def your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id_O: 
         InlineKeyboardButton(8, callback_data=alfabet[8]),
         InlineKeyboardButton(9, callback_data=alfabet[9])
     )
-    return markup.add(InlineKeyboardButton('Ходи', callback_data="wait"), InlineKeyboardButton('Сдаться', callback_data="wait"))
+    return markup.add(InlineKeyboardButton('Ходи', callback_data="wait"), InlineKeyboardButton('Сдаться', callback_data="surrender"))
 
 
 def not_your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id_O: str, inline_id: str) -> InlineKeyboardMarkup:
@@ -62,7 +62,7 @@ def not_your_turn(name: str, id_X: str, message_id_X: str, id_O: str, message_id
         InlineKeyboardButton(8, callback_data="expect"),
         InlineKeyboardButton(9, callback_data="expect")
     )
-    return markup.add(InlineKeyboardButton('Ходи', callback_data="wait"), InlineKeyboardButton('Сдаться', callback_data="wait"))
+    return markup.add(InlineKeyboardButton('Ходи', callback_data="wait"), InlineKeyboardButton('Сдаться', callback_data="surrender"))
 
 
 async def to_bot():

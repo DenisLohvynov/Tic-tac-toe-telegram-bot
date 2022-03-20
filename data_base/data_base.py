@@ -2,7 +2,7 @@ import sqlite3 as sq
 import logging
 
 
-logger = logging.getLogger()
+logger = logging.getLogger('data_base')
 
 
 async def sql_start(_):
