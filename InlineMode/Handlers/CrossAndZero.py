@@ -18,6 +18,11 @@ async def deep_link(message: Message):
             Если Вы хотите сыграть с собой, есть способ по проще :\-\)\.
             """
         )
+    elif not data_base.is_in_inline_message_id(inline_id):
+        await bot.send_message(message.chat.id, r"""
+            Вызов принят до Вас\.
+            """
+        )
     else:
         try:
             await bot.edit_message_caption(

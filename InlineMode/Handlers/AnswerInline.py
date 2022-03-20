@@ -3,26 +3,28 @@ from aiogram.types import InlineQuery, InlineQueryResultCachedPhoto, CallbackQue
 from aiogram import Dispatcher
 from InlineMode.Markup import markup
 from aiogram.types.chosen_inline_result import ChosenInlineResult
+import data_base.data_base as data_base 
 
 
 async def inline_hander(query: InlineQuery):
-    if query.chat_type=='private':
-        results = []
-        for i in ("X", "O", "?"):
-            if query.query in "duel " + i:
-                results.append(
-                    InlineQueryResultCachedPhoto(
-                        id=i,
-                        photo_file_id=photo_id_inline[i],
-                        caption="Подождите\.",
-                        reply_markup=markup.temp()
-                    )
+    # if query.chat_type=='private':
+    results = []
+    for i in ("X", "O", "?"):
+        if query.query in "duel " + i:
+            results.append(
+                InlineQueryResultCachedPhoto(
+                    id=i,
+                    photo_file_id=photo_id_inline[i],
+                    caption="Подождите\.",
+                    reply_markup=markup.temp()
                 )
+            )
 
-        await bot.answer_inline_query(query.id, results=results, cache_time=1)
+    await bot.answer_inline_query(query.id, results=results, cache_time=1)
 
 
 async def chosen_handler(chosen_result: ChosenInlineResult):
+    data_base.insert_inline_message_id(chosen_result.inline_message_id)
     what = "чем\-то" if chosen_result.result_id=="?" else chosen_result.result_id
     await bot.edit_message_caption(
         inline_message_id=chosen_result.inline_message_id,
