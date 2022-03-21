@@ -1,3 +1,4 @@
+from msilib.schema import Media
 from aiogram import types, Dispatcher, Bot
 from aiogram.types.input_media import InputMediaPhoto
 import asyncio
@@ -15,13 +16,12 @@ async def Opponent_Turn(callback_query: types.CallbackQuery):
 async def process_callback_X_O(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     name = "NNNNNNNNN" if callback_query.data=="Cross" else FunctionsForTicTacToe.get_random("NNNNNNNNN", what='X')
-    with open(GetImage.Generate(name), 'rb') as photo:
-        await bot.send_photo(
-                callback_query.message.chat.id,
-                photo,
-                caption='Выберите Ваш ход из предложенных ниже:',
-                reply_markup=ClientMarkup.choose_move(name)
-            )
+    await bot.send_photo(
+            callback_query.message.chat.id,
+            GetImage.Generate_bites_PIL(name).getvalue(),
+            caption='Выберите Ваш ход из предложенных ниже:',
+            reply_markup=ClientMarkup.choose_move(name)
+        )
 
 
 @dp.callback_query_handler(lambda callback_query: (callback_query.data[0] in [str(i) for i in range(1, 10)]) and callback_query.message.chat.type=='private')
@@ -30,16 +30,18 @@ async def process_callback_i(callback_query: types.CallbackQuery):
     async def answer(bot: Bot,  callback_query: types.CallbackQuery, name: str, answer: str, caption: str, show_alert: bool = True, markup: types.InlineKeyboardMarkup = None):
         await callback_query.answer(answer, show_alert=show_alert)
         await bot.answer_callback_query(callback_query.id)
-        
-        with open(GetImage.Generate(name), 'rb') as photo:
-            await bot.edit_message_media(
-                    media=InputMediaPhoto(
-                        media=photo,
-                        caption=caption),
-                    chat_id=callback_query.message.chat.id, 
-                    message_id=callback_query.message.message_id, 
-                    reply_markup=markup
-                )
+
+        photo = GetImage.Generate_bites_PIL(name)
+        photo.seek(0)
+        await bot.edit_message_media(
+                media = InputMediaPhoto(
+                    media=photo,
+                    caption=caption
+                ),
+                chat_id=callback_query.message.chat.id, 
+                message_id=callback_query.message.message_id, 
+                reply_markup=markup
+            )
 
     t = int(callback_query.data[0])-1 # index
     name_old = CodeForCallbackMove.decode(callback_query.data[1:])

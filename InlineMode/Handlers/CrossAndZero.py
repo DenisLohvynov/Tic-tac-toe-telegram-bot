@@ -30,30 +30,31 @@ async def deep_link(message: Message):
                 caption=data_base.get_name(int(id_X)) + " и " + data_base.get_name(int(id_O)) + " сейчас играют\.",
                 reply_markup=await markup.to_bot()
             )
-            with open(GetImage.Generate("NNNNNNNNN"), 'rb') as photo:
-                data1 = (await bot.send_photo(
-                    id_X,
-                    photo,
-                    caption='Выберите Ваш ход из предложенных ниже:',
-                    reply_markup=markup.temp_wait()
-                ))
-                file_id = data1["photo"][2]["file_id"]
-                data2= await bot.send_photo(
-                    id_O,
-                    file_id,
-                    caption='Подождите соперник ходит\.',
-                    reply_markup=markup.temp_wait()
+            photo = GetImage.Generate_bites_PIL("NNNNNNNNN")
+            photo.seek(0)
+            data1 = (await bot.send_photo(
+                id_X,
+                photo,
+                caption='Выберите Ваш ход из предложенных ниже:',
+                reply_markup=markup.temp_wait()
+            ))
+            file_id = data1["photo"][2]["file_id"]
+            data2= await bot.send_photo(
+                id_O,
+                file_id,
+                caption='Подождите соперник ходит\.',
+                reply_markup=markup.temp_wait()
+            )
+            await bot.edit_message_reply_markup(
+                    chat_id=id_X, 
+                    message_id=data1["message_id"],
+                    reply_markup=markup.your_turn("NNNNNNNNN", id_X, str(data1["message_id"]), id_O, str(data2["message_id"]), inline_id)
                 )
-                await bot.edit_message_reply_markup(
-                        chat_id=id_X, 
-                        message_id=data1["message_id"],
-                        reply_markup=markup.your_turn("NNNNNNNNN", id_X, str(data1["message_id"]), id_O, str(data2["message_id"]), inline_id)
-                    )
-                await bot.edit_message_reply_markup(
-                        chat_id=id_O, 
-                        message_id=data2["message_id"],
-                        reply_markup=markup.not_your_turn("NNNNNNNNN", id_X, str(data1["message_id"]), id_O, str(data2["message_id"]), inline_id)
-                    )
+            await bot.edit_message_reply_markup(
+                    chat_id=id_O, 
+                    message_id=data2["message_id"],
+                    reply_markup=markup.not_your_turn("NNNNNNNNN", id_X, str(data1["message_id"]), id_O, str(data2["message_id"]), inline_id)
+                )
         except NameError:
             await bot.edit_message_caption(
                 inline_message_id=inline_id,
@@ -118,59 +119,62 @@ async def move(callback_query: CallbackQuery):
             await callback_query.answer("Ход совершен.", show_alert=False)
             await bot.answer_callback_query(callback_query.id)
 
-            with open(GetImage.Generate(name), 'rb') as photo:
-                file_id = (await bot.edit_message_media(
-                        media=InputMediaPhoto(
-                            media=photo,
-                            caption='Подождите соперник ходит\.'),
-                        chat_id=callback_query.message.chat.id, 
-                        message_id=callback_query.message.message_id, 
-                        reply_markup=markup.not_your_turn(name, D["id_X"], D["message_id_X"], D["id_O"], D["message_id_O"], D["inline_id"])
-                    ))["photo"][2]["file_id"]
-                await bot.edit_message_media(
+
+            photo = GetImage.Generate_bites_PIL(name)
+            photo.seek(0)
+            file_id = (await bot.edit_message_media(
                     media=InputMediaPhoto(
-                        media=file_id,
-                        caption='Выберите Ваш ход из предложенных ниже:'),
-                    chat_id=chat_id1,
-                    message_id=message_id1,
-                    reply_markup=markup.your_turn(name, D["id_X"], D["message_id_X"], D["id_O"], D["message_id_O"], D["inline_id"])
-                    )
+                        media=photo,
+                        caption='Подождите соперник ходит\.'),
+                    chat_id=callback_query.message.chat.id, 
+                    message_id=callback_query.message.message_id, 
+                    reply_markup=markup.not_your_turn(name, D["id_X"], D["message_id_X"], D["id_O"], D["message_id_O"], D["inline_id"])
+                ))["photo"][2]["file_id"]
+            await bot.edit_message_media(
+                media=InputMediaPhoto(
+                    media=file_id,
+                    caption='Выберите Ваш ход из предложенных ниже:'),
+                chat_id=chat_id1,
+                message_id=message_id1,
+                reply_markup=markup.your_turn(name, D["id_X"], D["message_id_X"], D["id_O"], D["message_id_O"], D["inline_id"])
+                )
         elif result==ResultOfGame.DRAW:
             await bot.answer_callback_query(callback_query.id)
-            
-            with open(GetImage.Generate(name), 'rb') as photo:
-                file_id = (await bot.edit_message_media(
+            photo = GetImage.Generate_bites_PIL(name)
+            photo.seek(0)
+            file_id = (await bot.edit_message_media(
+                    media=InputMediaPhoto(
+                        media=photo,
+                        caption='Ничья\.'),
+                    chat_id=callback_query.message.chat.id, 
+                    message_id=callback_query.message.message_id, 
+                ))["photo"][2]["file_id"]
+            await bot.edit_message_media(
+                    media=InputMediaPhoto(
+                        media=file_id,
+                        caption='Ничья\.'),
+                    chat_id=chat_id1, 
+                    message_id=message_id1, 
+                )
+            await end_of_the_game_invitation(callback_query.message.chat.id, chat_id1, D["inline_id"], ResultOfGame.DRAW)
+        elif result==ResultOfGame.WIN:
+            photo = GetImage.Generate_bites_PIL(name)
+            photo.seek(0)
+            file_id = (await bot.edit_message_media(
                         media=InputMediaPhoto(
                             media=photo,
-                            caption='Ничья\.'),
+                            caption='Подбеда\!'),
                         chat_id=callback_query.message.chat.id, 
                         message_id=callback_query.message.message_id, 
                     ))["photo"][2]["file_id"]
-                await bot.edit_message_media(
+            await bot.edit_message_media(
                         media=InputMediaPhoto(
                             media=file_id,
-                            caption='Ничья\.'),
-                        chat_id=chat_id1, 
-                        message_id=message_id1, 
+                            caption='Поражение\.'),
+                        chat_id=chat_id1,
+                        message_id=message_id1,
                     )
-                await end_of_the_game_invitation(callback_query.message.chat.id, chat_id1, D["inline_id"], ResultOfGame.DRAW)
-        elif result==ResultOfGame.WIN:
-            with open(GetImage.Generate(name), 'rb') as photo:
-                file_id = (await bot.edit_message_media(
-                            media=InputMediaPhoto(
-                                media=photo,
-                                caption='Подбеда\!'),
-                            chat_id=callback_query.message.chat.id, 
-                            message_id=callback_query.message.message_id, 
-                        ))["photo"][2]["file_id"]
-                await bot.edit_message_media(
-                            media=InputMediaPhoto(
-                                media=file_id,
-                                caption='Поражение\.'),
-                            chat_id=chat_id1,
-                            message_id=message_id1,
-                        )
-                await end_of_the_game_invitation(callback_query.message.chat.id, chat_id1, D["inline_id"])
+            await end_of_the_game_invitation(callback_query.message.chat.id, chat_id1, D["inline_id"])
 
 
 async def surrender(callback_query: CallbackQuery):
